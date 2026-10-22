@@ -1,60 +1,106 @@
-
 "use client";
 
 import { useState } from "react";
+import styles from "./page.module.css";
 
 export default function Home() {
   const [workouts, setWorkouts] = useState(0);
-  const weeklyGoal = 4;
+  const [weeklyGoal, setWeeklyGoal] = useState(4);
 
-  const progress = Math.min(
-    (workouts / weeklyGoal) * 100,
-    100
-  );
+  const progress = Math.min((workouts / weeklyGoal) * 100, 100);
 
   function logWorkout() {
     setWorkouts((previous) => previous + 1);
   }
 
-  return (
-    <main className="min-h-screen p-8 max-w-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">
-        Fitness Accountability
-      </h1>
+  function undoWorkout() {
+    setWorkouts((previous) => Math.max(0, previous - 1));
+  }
 
-      <p className="text-gray-500 mb-8">
+  function increaseGoal() {
+    setWeeklyGoal((previous) => Math.min(7, previous + 1));
+  }
+
+  function decreaseGoal() {
+    setWeeklyGoal((previous) => Math.max(1, previous - 1));
+  }
+
+  return (
+    <main className={styles.page}>
+      <h1 className={styles.title}>Fitness Accountability</h1>
+      <p className={styles.subtitle}>
         Track your progress and stay accountable.
       </p>
 
-      <div className="border rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          Your Weekly Goal
-        </h2>
+      <section className={styles.card} aria-labelledby="goal-heading">
+        <h2 id="goal-heading">Workouts Per Week</h2>
 
-        <p className="text-2xl font-bold mb-4">
-          {workouts} / {weeklyGoal} workouts
-        </p>
+        <div className={styles.goalControls}>
+          <button
+            type="button"
+            onClick={decreaseGoal}
+            disabled={weeklyGoal === 1}
+            className={styles.goalButton}
+            aria-label="Decrease weekly goal"
+          >
+            −
+          </button>
 
-        <div className="w-full bg-gray-200 rounded-full h-4 mb-6">
+          <span>{weeklyGoal}</span>
+
+          <button
+            type="button"
+            onClick={increaseGoal}
+            disabled={weeklyGoal === 7}
+            className={styles.goalButton}
+            aria-label="Increase weekly goal"
+          >
+            +
+          </button>
+        </div>
+
+        <div className={styles.progressLabel}>
+          <span>Weekly Progress</span>
+          <span>{workouts} / {weeklyGoal}</span>
+        </div>
+
+        <div
+          className={styles.progressTrack}
+          role="progressbar"
+          aria-label="Weekly workout progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+        >
           <div
-            className="bg-green-500 h-4 rounded-full transition-all"
+            className={styles.progressFill}
             style={{ width: `${progress}%` }}
           />
         </div>
 
-        <button
-          onClick={logWorkout}
-          className="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700"
-        >
-          Log Workout
-        </button>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            onClick={logWorkout}
+            className={styles.logButton}
+          >
+            Log Workout
+          </button>
+
+          <button
+            type="button"
+            onClick={undoWorkout}
+            disabled={workouts === 0}
+            className={styles.undoButton}
+          >
+            Undo
+          </button>
+        </div>
 
         {workouts >= weeklyGoal && (
-          <p className="text-green-600 font-semibold mt-4">
-            Weekly goal achieved!
-          </p>
+          <p className={styles.success}>Weekly goal achieved!</p>
         )}
-      </div>
+      </section>
     </main>
   );
 }
